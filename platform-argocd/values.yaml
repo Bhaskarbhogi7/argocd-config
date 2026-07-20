@@ -8,9 +8,11 @@ server:
     annotations:
       kubernetes.io/tls-acme: "true"
       external-dns.alpha.kubernetes.io/hostname: argocd.example.com
-    hosts:
-      - argocd.example.com
-    tls:
+    hostname: argocd.example.com
+    path: /
+    pathType: Prefix
+    tls: true
+    extraTls:
       - secretName: argocd-server-tls
         hosts:
           - argocd.example.com
