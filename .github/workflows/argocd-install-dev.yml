@@ -35,7 +35,10 @@ jobs:
         run: |
           set -euo pipefail
           echo "Current kubectl context:"
+          kubectl version --client
           kubectl config current-context
+          echo "Kubeconfig file:"
+          sed -n '1,40p' ~/.kube/config
           echo "Available namespaces:"
           kubectl get namespaces
           echo "Applying Argo CD manifests directly with kubectl"
