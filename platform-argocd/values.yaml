@@ -19,7 +19,7 @@ server:
 
 configs:
   params:
-    server.insecure: false
+    server.insecure: true
   cm:
     admin.enabled: "true"
     url: https://argocd.example.com
