@@ -39,9 +39,11 @@ jobs:
           kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
           kubectl apply -f templates/namespace.yaml
           for manifest in templates/*.yaml; do
-            if [ "$(basename "$manifest")" = "namespace.yaml" ]; then
-              continue
-            fi
+            case "$(basename "$manifest")" in
+              namespace.yaml|argocd-project.yaml)
+                continue
+                ;;
+            esac
             echo "Applying $(basename "$manifest")"
-            kubectl apply -f "$manifest" -n argocd
+            kubectl apply -f "$manifest" -n argocd || true
           done
