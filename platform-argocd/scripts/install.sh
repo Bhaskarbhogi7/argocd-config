@@ -11,6 +11,8 @@ fi
 
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
+helm dependency build .
+
 helm upgrade --install argocd . \
   --namespace "$NAMESPACE" \
   --create-namespace \
