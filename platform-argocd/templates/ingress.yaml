@@ -4,10 +4,10 @@ metadata:
   name: argocd-server-ingress
   namespace: argocd
   annotations:
-    kubernetes.io/ingress.class: webapprouting.k8s.azure.com
+    kubernetes.io/ingress.class: webapprouting.kubernetes.azure.com
     external-dns.alpha.kubernetes.io/hostname: argocd.example.com
 spec:
-  ingressClassName: webapprouting.k8s.azure.com
+  ingressClassName: webapprouting.kubernetes.azure.com
   tls:
     - hosts:
         - argocd.example.com
