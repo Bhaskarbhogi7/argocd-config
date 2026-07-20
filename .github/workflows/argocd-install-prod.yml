@@ -38,11 +38,15 @@ jobs:
 
       - name: Install Argo CD
         run: |
-          echo "Git ref: $(git rev-parse --abbrev-ref HEAD)"
-          echo "Git SHA: $(git rev-parse HEAD)"
-          echo "Chart.yaml contents:"
-          sed -n '1,120p' platform-argocd/Chart.yaml
-          echo "Dependency declaration check:"
-          grep -n '^dependencies:' platform-argocd/Chart.yaml || true
+          set -euo pipefail
+          echo "Applying Argo CD manifests directly with kubectl"
           cd platform-argocd
-          bash -x ./scripts/install.sh ./environments/prod/values.yaml
+          kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+          kubectl apply -f templates/namespace.yaml
+          for manifest in templates/*.yaml; do
+            if [ "$(basename "$manifest")" = "namespace.yaml" ]; then
+              continue
+            fi
+            echo "Applying $(basename "$manifest")"
+            kubectl apply -f "$manifest" -n argocd
+          done

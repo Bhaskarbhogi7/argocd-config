@@ -33,12 +33,15 @@ jobs:
 
       - name: Install Argo CD
         run: |
-          echo "Git ref: $(git rev-parse --abbrev-ref HEAD)"
-          echo "Git SHA: $(git rev-parse HEAD)"
-          echo "Running install script from: $(pwd)"
-          ls -la
+          set -euo pipefail
+          echo "Applying Argo CD manifests directly with kubectl"
           cd platform-argocd
-          echo "Changed to: $(pwd)"
-          ls -la scripts
-          echo "Executing install script..."
-          bash -x ./scripts/install.sh ./environments/dev/values.yaml
+          kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+          kubectl apply -f templates/namespace.yaml
+          for manifest in templates/*.yaml; do
+            if [ "$(basename "$manifest")" = "namespace.yaml" ]; then
+              continue
+            fi
+            echo "Applying $(basename "$manifest")"
+            kubectl apply -f "$manifest" -n argocd
+          done
