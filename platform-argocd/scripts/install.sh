@@ -26,7 +26,12 @@ fi
 
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
-for manifest in templates/*.yaml; do
-  echo "Applying $(basename "$manifest")"
-  kubectl apply -f "$manifest" -n "$NAMESPACE"
-done
+helm repo add argo https://argoproj.github.io/argo-helm >/dev/null 2>&1 || true
+helm repo update
+
+helm upgrade --install argocd argo/argo-cd \
+  --namespace "$NAMESPACE" \
+  --create-namespace \
+  -f values.yaml \
+  -f "$ENV_FILE" \
+  --wait --timeout 15m

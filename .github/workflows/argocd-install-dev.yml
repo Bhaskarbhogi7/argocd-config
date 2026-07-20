@@ -22,6 +22,11 @@ jobs:
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
 
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.4
+
       - name: Configure kubeconfig
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_DEV }}
@@ -37,25 +42,7 @@ jobs:
           echo "Current kubectl context:"
           kubectl version --client
           kubectl config current-context
-          echo "Kubeconfig file:"
-          sed -n '1,40p' ~/.kube/config
           echo "Available namespaces:"
           kubectl get namespaces
-          echo "Applying Argo CD manifests directly with kubectl"
           cd platform-argocd
-          kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-          kubectl apply -f templates/namespace.yaml --namespace=argocd || true
-          for manifest in templates/*.yaml; do
-            case "$(basename "$manifest")" in
-              namespace.yaml|argocd-project.yaml|ingress.yaml)
-                echo "Skipping $(basename "$manifest")"
-                continue
-                ;;
-            esac
-            echo "Applying $(basename "$manifest")"
-            kubectl apply -f "$manifest" --namespace=argocd
-          done
-          echo "Namespaces after apply:"
-          kubectl get namespaces
-          echo "Resources in argocd namespace:"
-          kubectl get all -n argocd
+          ./scripts/install.sh ./environments/dev/values.yaml
