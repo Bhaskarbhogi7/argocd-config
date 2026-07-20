@@ -36,4 +36,6 @@ jobs:
       - name: Install Argo CD
         run: |
           cd platform-argocd
+          echo "Chart.yaml contents:"
+          cat Chart.yaml
           ./scripts/install.sh ./environments/dev/values.yaml

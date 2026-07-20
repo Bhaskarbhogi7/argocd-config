@@ -11,7 +11,12 @@ fi
 
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
-helm dependency build .
+if grep -q '^dependencies:' Chart.yaml; then
+  echo "Building Helm dependencies for this chart..."
+  helm dependency build .
+else
+  echo "No chart dependencies declared in Chart.yaml; skipping dependency build."
+fi
 
 helm upgrade --install argocd . \
   --namespace "$NAMESPACE" \
