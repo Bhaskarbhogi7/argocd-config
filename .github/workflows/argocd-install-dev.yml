@@ -41,8 +41,7 @@ jobs:
           echo "Applying Argo CD manifests directly with kubectl"
           cd platform-argocd
           kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-          kubectl config set-context --current --namespace=argocd >/dev/null 2>&1 || true
-          kubectl apply -f templates/namespace.yaml || true
+          kubectl apply -f templates/namespace.yaml --namespace=argocd || true
           for manifest in templates/*.yaml; do
             case "$(basename "$manifest")" in
               namespace.yaml|argocd-project.yaml)
@@ -50,7 +49,7 @@ jobs:
                 ;;
             esac
             echo "Applying $(basename "$manifest")"
-            kubectl apply -f "$manifest" || true
+            kubectl apply -f "$manifest" --namespace=argocd || true
           done
           echo "Namespaces after apply:"
           kubectl get namespaces
