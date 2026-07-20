@@ -19,11 +19,6 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Set up Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: v3.14.4
-
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
 
@@ -40,9 +35,10 @@ jobs:
         run: |
           echo "Git ref: $(git rev-parse --abbrev-ref HEAD)"
           echo "Git SHA: $(git rev-parse HEAD)"
-          echo "Chart.yaml contents:"
-          sed -n '1,120p' platform-argocd/Chart.yaml
-          echo "Dependency declaration check:"
-          grep -n '^dependencies:' platform-argocd/Chart.yaml || true
+          echo "Running install script from: $(pwd)"
+          ls -la
           cd platform-argocd
+          echo "Changed to: $(pwd)"
+          ls -la scripts
+          echo "Executing install script..."
           bash -x ./scripts/install.sh ./environments/dev/values.yaml
