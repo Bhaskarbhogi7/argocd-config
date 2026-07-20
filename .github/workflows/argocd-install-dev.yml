@@ -34,6 +34,10 @@ jobs:
       - name: Install Argo CD
         run: |
           set -euo pipefail
+          echo "Current kubectl context:"
+          kubectl config current-context
+          echo "Available namespaces:"
+          kubectl get namespaces
           echo "Applying Argo CD manifests directly with kubectl"
           cd platform-argocd
           kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
