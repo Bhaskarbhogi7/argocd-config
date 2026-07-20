@@ -1,0 +1,33 @@
+global:
+  domain: argocd.example.com
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: webapprouting.k8s.azure.com
+    annotations:
+      kubernetes.io/tls-acme: "true"
+      external-dns.alpha.kubernetes.io/hostname: argocd.example.com
+    hosts:
+      - argocd.example.com
+    tls:
+      - secretName: argocd-server-tls
+        hosts:
+          - argocd.example.com
+
+configs:
+  params:
+    server.insecure: false
+  cm:
+    admin.enabled: "true"
+    url: https://argocd.example.com
+
+repoServer:
+  autoscaling:
+    enabled: false
+
+applicationSet:
+  enabled: true
+
+notifications:
+  enabled: false

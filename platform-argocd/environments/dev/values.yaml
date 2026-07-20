@@ -1,0 +1,15 @@
+redis-ha:
+  enabled: false
+
+server:
+  ingress:
+    hosts:
+      - argocd-dev.example.com
+    # tls:
+    #   - secretName: argocd-dev-server-tls
+    #     hosts:
+    #       - argocd-dev.example.com
+
+configs:
+  cm:
+    url: https://argocd-dev.example.com

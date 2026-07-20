@@ -1,0 +1,12 @@
+server:
+  ingress:
+    hosts:
+      - argocd.example.com
+    tls:
+      - secretName: argocd-server-tls
+        hosts:
+          - argocd.example.com
+
+configs:
+  cm:
+    url: https://argocd.example.com

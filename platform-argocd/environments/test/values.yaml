@@ -1,0 +1,12 @@
+server:
+  ingress:
+    hosts:
+      - argocd-nonprod.example.com
+    tls:
+      - secretName: argocd-nonprod-server-tls
+        hosts:
+          - argocd-nonprod.example.com
+
+configs:
+  cm:
+    url: https://argocd-nonprod.example.com
