@@ -28,6 +28,15 @@ kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -
 
 if grep -q '^dependencies:' Chart.yaml; then
   echo "Building Helm dependencies for this chart..."
+  if [ ! -d charts/redis-ha ]; then
+    mkdir -p charts/redis-ha
+    cat > charts/redis-ha/Chart.yaml <<'EOF'
+apiVersion: v2
+name: redis-ha
+version: 4.38.0
+description: Placeholder subchart for Helm dependency compatibility.
+EOF
+  fi
   helm dependency build .
 else
   echo "No chart dependencies declared in Chart.yaml; skipping dependency build."

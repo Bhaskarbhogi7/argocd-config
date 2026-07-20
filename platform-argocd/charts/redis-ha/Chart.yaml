@@ -1,0 +1,4 @@
+apiVersion: v2
+name: redis-ha
+version: 4.38.0
+description: Placeholder subchart to satisfy Helm dependency resolution for the Argo CD scaffold.
