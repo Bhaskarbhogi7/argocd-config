@@ -14,9 +14,46 @@ if [[ "$ENV_FILE" != /* ]]; then
   fi
 fi
 
-cd "$CHART_DIR"
+TMP_DIR="$(mktemp -d)"
+WORK_DIR="$TMP_DIR/chart"
+trap 'rm -rf "$TMP_DIR"' EXIT
+mkdir -p "$WORK_DIR"
+cp -R "$CHART_DIR"/. "$WORK_DIR"/
 
-echo "Using chart directory: $CHART_DIR"
+python3 - "$WORK_DIR/Chart.yaml" <<'PY'
+from pathlib import Path
+import sys
+path = Path(sys.argv[1])
+if not path.exists():
+    raise SystemExit(0)
+text = path.read_text()
+if 'dependencies:' not in text:
+    raise SystemExit(0)
+lines = text.splitlines()
+out = []
+in_deps = False
+parent_indent = None
+for line in lines:
+    if not in_deps and line.startswith('dependencies:'):
+        in_deps = True
+        parent_indent = len(line) - len(line.lstrip())
+        continue
+    if in_deps:
+        indent = len(line) - len(line.lstrip())
+        if line.strip() == '':
+            out.append(line)
+            continue
+        if indent <= parent_indent:
+            in_deps = False
+            out.append(line)
+        continue
+    out.append(line)
+path.write_text('\n'.join(out).rstrip() + '\n')
+PY
+
+cd "$WORK_DIR"
+
+echo "Using chart directory: $WORK_DIR"
 echo "Using values file: $ENV_FILE"
 
 if ! kubectl cluster-info >/dev/null 2>&1; then
@@ -25,22 +62,6 @@ if ! kubectl cluster-info >/dev/null 2>&1; then
 fi
 
 kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
-
-if grep -q '^dependencies:' Chart.yaml; then
-  echo "Building Helm dependencies for this chart..."
-  if [ ! -d charts/redis-ha ]; then
-    mkdir -p charts/redis-ha
-    cat > charts/redis-ha/Chart.yaml <<'EOF'
-apiVersion: v2
-name: redis-ha
-version: 4.38.0
-description: Placeholder subchart for Helm dependency compatibility.
-EOF
-  fi
-  helm dependency build .
-else
-  echo "No chart dependencies declared in Chart.yaml; skipping dependency build."
-fi
 
 helm upgrade --install argocd . \
   --namespace "$NAMESPACE" \
