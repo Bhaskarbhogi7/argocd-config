@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - name: Set up Helm
         uses: azure/setup-helm@v4
@@ -35,5 +38,11 @@ jobs:
 
       - name: Install Argo CD
         run: |
+          echo "Git ref: $(git rev-parse --abbrev-ref HEAD)"
+          echo "Git SHA: $(git rev-parse HEAD)"
+          echo "Chart.yaml contents:"
+          sed -n '1,120p' platform-argocd/Chart.yaml
+          echo "Dependency declaration check:"
+          grep -n '^dependencies:' platform-argocd/Chart.yaml || true
           cd platform-argocd
-          ./scripts/install.sh ./environments/nonprod/values.yaml
+          bash -x ./scripts/install.sh ./environments/nonprod/values.yaml
